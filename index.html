@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabulator, Chart.js, and Bootstrap Example</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Tabulator CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tabulator-tables@5.0.7/dist/css/tabulator_simple.min.css" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa !important; 
+            color: #343a40; 
+            font-family: 'Nunito', sans-serif; 
+        }
+        .container {
+            padding-top: 2rem;
+        }
+        #example-table .tabulator {
+            color: #495057; 
+            background-color: #ffffff !important; 
+            border-radius: 0.25rem;
+            box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+        }
+        .tabulator-row {
+            border-color: #dee2e6 !important; 
+        }
+        .tabulator-cell {
+            border-color: #dee2e6 !important; 
+        }
+        .tabulator-header {
+            background-color: #e9ecef !important; 
+            color: #495057 !important; 
+        }
+  
+        .card {
+            background-color: #ffffff !important; 
+            color: #343a40;
+            border: 1px solid #dee2e6; 
+            box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+        }
+        .card-body {
+            padding: 1rem;
+        }
+        canvas {
+            max-width: 100%;
+            height: auto !important;
+        }
+    </style>
+    
+    
+</head>
+<body>
+
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <div id="example-table"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <canvas id="bar-chart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <canvas id="line-chart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Bundle with Popper -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+<!-- Tabulator JS -->
+<script src="https://cdn.jsdelivr.net/npm/tabulator-tables@5.0.7/dist/js/tabulator.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+        // Simulated data generation, fetching the data would not be feasible in this short amount of time.
+        //I definitely would experiment with it in the future though :)
+        const generateData = () => {
+            const data = [];
+            for (let i = 1; i <= 100; i++) { 
+                data.push({
+                    id: i,
+                    timestamp: `2024-04-${String(i % 30).padStart(2, '0')} 12:00`, 
+                    rtt: Math.random() * 250 + 50, 
+                    ping: Math.random() * 100 + 10, 
+                    interference: Math.random() * 10 
+                });
+            }
+            return data;
+        };
+    
+        var tabledata = generateData();
+    
+        var table = new Tabulator("#example-table", {
+            data: tabledata,
+            height: "311px",
+            layout: "fitColumns",
+            columns: [
+                {title: "Timestamp", field: "timestamp", sorter: "date", widthGrow: 2},
+                {title: "RTT (ms)", field: "rtt", sorter: "number", widthGrow: 1},
+                {title: "Ping (ms)", field: "ping", sorter: "number", widthGrow: 1},
+                {title: "Interference (%)", field: "interference", sorter: "number", widthGrow: 1},
+            ],
+        });
+    
+        const labels = tabledata.map(data => data.timestamp.split(' ')[0]);
+        const rttData = tabledata.map(data => data.rtt);
+        const interferenceData = tabledata.map(data => data.interference);
+    
+        var rttChart = new Chart(document.getElementById("bar-chart"), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "RTT (ms)",
+                    backgroundColor: "rgba(62,149,205,0.1)",
+                    borderColor: "rgba(62,149,205,1)",
+                    data: rttData,
+                    fill: true,
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'Network RTT Over Time'
+                }
+            }
+        });
+    
+
+        var interferenceChart = new Chart(document.getElementById("line-chart"), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Interference (%)",
+                    backgroundColor: "rgba(220,53,69,0.5)",
+                    borderColor: "rgba(220,53,69,1)",
+                    data: interferenceData,
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        suggestedMax: 10 
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'Network Interference Over Time'
+                }
+            }
+        });
+    });
+    </script>
+    
+</body>
+</html>
+
+
